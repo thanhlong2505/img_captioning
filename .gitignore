@@ -1,19 +1,20 @@
-# Virtual environment
-.venv/
-
-# Dataset
-data/
-
-# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
 
-# Jupyter
-.ipynb_checkpoints/
+tmp/
 
-# VS Code
-.vscode/
+data/
+data/raw/images/*
+!data/raw/images/.gitkeep
 
-# OS files
-.DS_Store
-Thumbs.db
+checkpoints/*.pt
+outputs/predictions/*.json
+outputs/samples/*.json
+outputs/metrics/*.json
+

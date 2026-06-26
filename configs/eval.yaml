@@ -1,0 +1,32 @@
+project:
+  seed: 42
+  device: cuda
+
+data:
+  image_dir: data/raw/images
+  test_json: data/processed/test.json
+  test_refs_json: data/processed/test_refs.json
+
+model:
+  vision_encoder: google/siglip2-large-patch16-256
+  decoder: Qwen/Qwen3-1.7B
+  image_size: 256
+  patch_size: 16
+  vision_dim: 1024
+  llm_dim: 2048
+  spatial_merge_size: 2
+  checkpoint: checkpoints/connector_best.pt
+
+prompt:
+  text: "Hãy mô tả bức ảnh này bằng một câu tiếng Việt tự nhiên:"
+
+generation:
+  max_new_tokens: 64
+  num_beams: 3
+  do_sample: false
+  repetition_penalty: 1.05
+
+outputs:
+  predictions: outputs/predictions/test_predictions.json
+  metrics: outputs/metrics/test_metrics.json
+

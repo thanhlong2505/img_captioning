@@ -1,0 +1,50 @@
+project:
+  seed: 42
+  device: cuda
+
+data:
+  raw_json: data/raw/annotations/flickr30k_vi.json
+  image_dir: data/raw/images
+  processed_dir: data/processed
+  stats_dir: data/stats
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+
+model:
+  vision_encoder: google/siglip2-large-patch16-256
+  decoder: Qwen/Qwen3-1.7B
+  image_size: 256
+  patch_size: 16
+  vision_dim: 1024
+  llm_dim: 2048
+  spatial_merge_size: 2
+
+prompt:
+  text: "Hãy mô tả bức ảnh này bằng một câu tiếng Việt tự nhiên:"
+
+train:
+  batch_size: 1
+  grad_accum_steps: 8
+  epochs: 5
+  lr: 1.0e-4
+  weight_decay: 0.01
+  max_prompt_length: 32
+  max_caption_length: 64
+  mixed_precision: fp16
+  num_workers: 2
+  save_dir: checkpoints
+  log_every: 20
+  validate_every_epoch: true
+
+generation:
+  max_new_tokens: 64
+  num_beams: 3
+  do_sample: false
+  repetition_penalty: 1.05
+
+outputs:
+  prediction_dir: outputs/predictions
+  sample_dir: outputs/samples
+  metric_dir: outputs/metrics
+

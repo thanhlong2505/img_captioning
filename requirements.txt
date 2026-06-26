@@ -1,0 +1,15 @@
+torch
+torchvision
+transformers
+accelerate
+pillow
+pyyaml
+tqdm
+numpy
+scikit-learn
+nltk
+rouge-score
+evaluate
+pytest
+sacrebleu
+
