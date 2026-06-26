@@ -9,17 +9,32 @@ class QwenDecoder(nn.Module):
 
     def __init__(self, model_name: str = "Qwen/Qwen3-1.7B", torch_dtype=torch.float16):
         super().__init__()
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        # if self.tokenizer.pad_token is None:
+        #     self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        # self.model = AutoModelForCausalLM.from_pretrained(
+        #     model_name,
+        #     torch_dtype=torch_dtype,
+        #     trust_remote_code=True,
+        # )
+
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+        quantization_config = BitsAndBytesConfig(load_in_4bit=True)
+
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            torch_dtype=torch_dtype,
+            quantization_config=quantization_config,
+            device_map="auto",
             trust_remote_code=True,
         )
+
         self.model.config.use_cache = False
 
         for parameter in self.model.parameters():

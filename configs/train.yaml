@@ -29,7 +29,7 @@ train:
   epochs: 5
   lr: 1.0e-4
   weight_decay: 0.01
-  max_prompt_length: 32
+  max_prompt_length: 16
   max_caption_length: 64
   mixed_precision: fp16
   num_workers: 2
