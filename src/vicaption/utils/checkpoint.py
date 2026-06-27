@@ -38,3 +38,18 @@ def load_connector_checkpoint(path: str, connector, map_location: str = "cpu") -
     connector.load_state_dict(state_dict)
     return checkpoint
 
+
+def load_training_checkpoint(
+    path: str,
+    connector,
+    optimizer=None,
+    map_location: str = "cpu",
+) -> dict[str, Any]:
+    """Load Connector weights plus optimizer state for training resume."""
+    import torch
+
+    checkpoint = torch.load(path, map_location=map_location)
+    connector.load_state_dict(checkpoint["connector"])
+    if optimizer is not None and checkpoint.get("optimizer") is not None:
+        optimizer.load_state_dict(checkpoint["optimizer"])
+    return checkpoint

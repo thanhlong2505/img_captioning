@@ -22,7 +22,10 @@ class FakeProcessor:
 
 
 class FakeTokenizer:
-    def __call__(self, texts, padding=True, truncation=True, return_tensors="pt"):
+    pad_token_id = 0
+    eos_token_id = 2
+
+    def __call__(self, texts, padding=True, truncation=True, return_tensors="pt", **kwargs):
         return {
             "input_ids": torch.ones(len(texts), 2, dtype=torch.long),
             "attention_mask": torch.ones(len(texts), 2, dtype=torch.long),
@@ -103,4 +106,3 @@ def test_batch_generation_saves_valid_json(tmp_path):
 
     saved = json.loads(output_path.read_text(encoding="utf-8"))
     assert saved == [{"image_id": "sample.jpg", "prediction": "Một ảnh thử."}]
-

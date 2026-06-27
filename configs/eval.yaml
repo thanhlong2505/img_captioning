@@ -16,17 +16,29 @@ model:
   llm_dim: 2048
   spatial_merge_size: 2
   checkpoint: checkpoints/connector_best.pt
+  decoder_load_in_4bit: true
+  decoder_4bit_compute_dtype: float16
+  decoder_4bit_quant_type: nf4
+  decoder_4bit_use_double_quant: true
+  decoder_device_map: auto
+  decoder_attn_implementation: sdpa
 
 prompt:
-  text: "Hãy mô tả bức ảnh này bằng một câu tiếng Việt tự nhiên:"
+  text: "Viết đúng một câu chú thích tiếng Việt tự nhiên, giàu thông tin, mô tả chính xác người, vật, hành động và bối cảnh chính trong ảnh. Không lặp lại, không bịa chi tiết không chắc chắn:"
 
 generation:
   max_new_tokens: 64
   num_beams: 3
   do_sample: false
-  repetition_penalty: 1.05
+  repetition_penalty: 1.2
+  no_repeat_ngram_size: 3
+  early_stopping: true
+  length_penalty: 1.0
+  stop_after_first_sentence: true
+  force_eos_after_sentence: true
+  min_new_tokens_before_stop: 8
+  max_prompt_length: 64
 
 outputs:
   predictions: outputs/predictions/test_predictions.json
   metrics: outputs/metrics/test_metrics.json
-

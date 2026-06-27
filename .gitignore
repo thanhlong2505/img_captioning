@@ -23,6 +23,7 @@ data/processed/*
 data/stats/*
 !data/stats/.gitkeep
 
+checkpoints/
 checkpoints/*.pt
 outputs/predictions/*.json
 outputs/samples/*.json

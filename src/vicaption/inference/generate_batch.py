@@ -9,11 +9,20 @@ from tqdm import tqdm
 from vicaption.inference.generate_one import generate_caption
 from vicaption.models.captioner import VietnameseCaptioner
 from vicaption.models.connector import QwenStyleConnector
-from vicaption.models.decoder import QwenDecoder
+from vicaption.models.decoder import QwenDecoder, decoder_kwargs_from_config
 from vicaption.models.vision_encoder import SigLIPVisionEncoder
 from vicaption.utils.checkpoint import load_connector_checkpoint
 from vicaption.utils.config import load_config
 from vicaption.utils.device import get_device
+
+
+def _move_module_to_device(module, device) -> None:
+    try:
+        module.to(device)
+    except (NotImplementedError, RuntimeError, ValueError) as exc:
+        message = str(exc).lower()
+        if "quant" not in message and "bitsandbytes" not in message and "4-bit" not in message:
+            raise
 
 
 def load_generation_items(json_path: str | Path) -> list[dict]:
@@ -77,14 +86,21 @@ def run_batch_generation(config_path: str) -> list[dict[str, str]]:
         patch_size=int(model_cfg["patch_size"]),
         torch_dtype=dtype,
     )
-    decoder = QwenDecoder(model_name=model_cfg["decoder"], torch_dtype=dtype)
+    decoder = QwenDecoder(
+        model_name=model_cfg["decoder"],
+        torch_dtype=dtype,
+        **decoder_kwargs_from_config(model_cfg),
+    )
     connector = QwenStyleConnector(
         vision_dim=int(model_cfg["vision_dim"]),
         llm_dim=int(model_cfg["llm_dim"]),
         spatial_merge_size=int(model_cfg["spatial_merge_size"]),
     )
     load_connector_checkpoint(model_cfg["checkpoint"], connector, map_location=str(device))
-    model = VietnameseCaptioner(vision_encoder, connector, decoder).to(device)
+    model = VietnameseCaptioner(vision_encoder, connector, decoder)
+    _move_module_to_device(model.vision_encoder, device)
+    _move_module_to_device(model.connector, device)
+    _move_module_to_device(model.decoder, device)
     model.eval()
 
     items = load_generation_items(config["data"]["test_json"])
@@ -100,4 +116,3 @@ def run_batch_generation(config_path: str) -> list[dict[str, str]]:
     )
     save_predictions(predictions, config["outputs"]["predictions"])
     return predictions
-

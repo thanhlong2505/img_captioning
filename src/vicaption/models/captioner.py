@@ -64,12 +64,20 @@ class VietnameseCaptioner(nn.Module):
         }
 
     def forward(self, batch: dict) -> dict[str, torch.Tensor]:
-        with torch.no_grad():
-            visual_tokens, grid_h, grid_w = self.vision_encoder(batch["pixel_values"])
+        if "visual_tokens" in batch:
+            visual_tokens = batch["visual_tokens"]
+            grid_h = int(batch["grid_h"])
+            grid_w = int(batch["grid_w"])
+        else:
+            with torch.no_grad():
+                visual_tokens, grid_h, grid_w = self.vision_encoder(batch["pixel_values"])
 
-        visual_embeds = self.connector(visual_tokens, grid_h, grid_w)
+        connector_parameter = next(self.connector.parameters())
+        visual_tokens = visual_tokens.to(device=connector_parameter.device, dtype=connector_parameter.dtype)
         prompt_embeds = self.decoder.embed_tokens(batch["prompt_input_ids"])
         caption_embeds = self.decoder.embed_tokens(batch["caption_input_ids"])
+        visual_embeds = self.connector(visual_tokens, grid_h, grid_w)
+        visual_embeds = visual_embeds.to(device=prompt_embeds.device, dtype=prompt_embeds.dtype)
 
         model_inputs = self.build_multimodal_inputs(
             prompt_embeds=prompt_embeds,
@@ -92,8 +100,11 @@ class VietnameseCaptioner(nn.Module):
     ):
         generation_kwargs = generation_kwargs or {}
         visual_tokens, grid_h, grid_w = self.vision_encoder(pixel_values)
+        connector_parameter = next(self.connector.parameters())
+        visual_tokens = visual_tokens.to(device=connector_parameter.device, dtype=connector_parameter.dtype)
         visual_embeds = self.connector(visual_tokens, grid_h, grid_w)
         prompt_embeds = self.decoder.embed_tokens(prompt_input_ids)
+        visual_embeds = visual_embeds.to(device=prompt_embeds.device, dtype=prompt_embeds.dtype)
         visual_attention_mask = torch.ones(
             (visual_embeds.shape[0], visual_embeds.shape[1]),
             dtype=prompt_attention_mask.dtype,
@@ -114,4 +125,3 @@ class VietnameseCaptioner(nn.Module):
         total_trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
         connector_params = sum(p.numel() for p in self.connector.parameters())
         return total_trainable, connector_params
-
