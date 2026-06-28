@@ -23,6 +23,9 @@ data/processed/*
 data/stats/*
 !data/stats/.gitkeep
 
+data/test_images/*
+!data/test_images/.gitkeep
+
 checkpoints/
 checkpoints/*.pt
 outputs/predictions/*.json
