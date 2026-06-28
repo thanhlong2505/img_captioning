@@ -140,9 +140,13 @@ def compute_cider(predictions: dict[str, str], references: dict[str, list[str]])
     except Exception:
         return None
 
+    image_ids = [image_id for image_id in predictions if image_id in references]
+    if not image_ids:
+        return 0.0
+
     scorer = Cider()
-    gts = {image_id: refs for image_id, refs in references.items()}
-    res = {image_id: [pred] for image_id, pred in predictions.items()}
+    gts = {image_id: references[image_id] for image_id in image_ids}
+    res = {image_id: [predictions[image_id]] for image_id in image_ids}
     score, _ = scorer.compute_score(gts, res)
     return float(score)
 
@@ -153,4 +157,3 @@ def compute_all_metrics(predictions: dict[str, str], references: dict[str, list[
     metrics["METEOR"] = compute_meteor(predictions, references)
     metrics["CIDEr"] = compute_cider(predictions, references)
     return metrics
-
