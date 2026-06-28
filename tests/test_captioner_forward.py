@@ -36,7 +36,8 @@ class FakeDecoder(nn.Module):
         return self.embedding(input_ids)
 
     def forward(self, inputs_embeds, attention_mask, labels=None):
-        logits = self.lm_head(inputs_embeds)
+        causal_context = inputs_embeds.cumsum(dim=1)
+        logits = self.lm_head(causal_context)
         loss = F.cross_entropy(
             logits.reshape(-1, logits.shape[-1]),
             labels.reshape(-1),
@@ -96,4 +97,3 @@ def test_captioner_forward_returns_scalar_loss_and_connector_gradients():
     assert connector_grads
     assert any(grad is not None and torch.any(grad != 0) for grad in connector_grads)
     assert all(parameter.grad is None for parameter in model.decoder.parameters())
-

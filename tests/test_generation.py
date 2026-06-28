@@ -34,7 +34,7 @@ class FakeTokenizer:
     def decode(self, ids, skip_special_tokens=True):
         if hasattr(ids, "numel") and ids.numel() == 0:
             return ""
-        return "Một ảnh thử."
+        return "First sentence. Second sentence."
 
 
 class FakeModel:
@@ -66,7 +66,24 @@ def test_generate_caption_returns_string(tmp_path):
     )
 
     assert isinstance(caption, str)
-    assert caption == "Một ảnh thử."
+    assert caption == "First sentence."
+
+
+def test_generate_caption_can_return_raw_text_without_postprocess(tmp_path):
+    image_path = tmp_path / "sample.jpg"
+    _make_image(image_path)
+
+    caption = generate_caption(
+        str(image_path),
+        model=FakeModel(),
+        processor=FakeProcessor(),
+        tokenizer=FakeTokenizer(),
+        prompt="prompt",
+        generation_config={"postprocess": False},
+        device=torch.device("cpu"),
+    )
+
+    assert caption == "First sentence. Second sentence."
 
 
 def test_empty_prediction_is_handled(tmp_path):
@@ -105,4 +122,4 @@ def test_batch_generation_saves_valid_json(tmp_path):
     save_predictions(predictions, output_path)
 
     saved = json.loads(output_path.read_text(encoding="utf-8"))
-    assert saved == [{"image_id": "sample.jpg", "prediction": "Một ảnh thử."}]
+    assert saved == [{"image_id": "sample.jpg", "prediction": "First sentence."}]

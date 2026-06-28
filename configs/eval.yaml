@@ -15,7 +15,7 @@ model:
   vision_dim: 1024
   llm_dim: 2048
   spatial_merge_size: 2
-  checkpoint: checkpoints/connector_best.pt
+  checkpoint: checkpoints/epoch5_backup/connector_best_epoch5.pt
   decoder_load_in_4bit: true
   decoder_4bit_compute_dtype: float16
   decoder_4bit_quant_type: nf4
@@ -24,18 +24,19 @@ model:
   decoder_attn_implementation: sdpa
 
 prompt:
-  text: "Viết đúng một câu chú thích tiếng Việt tự nhiên, giàu thông tin, mô tả chính xác người, vật, hành động và bối cảnh chính trong ảnh. Không lặp lại, không bịa chi tiết không chắc chắn:"
+  text: "Viết một câu chú thích tiếng Việt tự nhiên, chính xác, mô tả nội dung chính trong ảnh. Không lặp lại và không suy đoán."
 
 generation:
-  max_new_tokens: 64
+  max_new_tokens: 160
   num_beams: 3
   do_sample: false
-  repetition_penalty: 1.2
-  no_repeat_ngram_size: 3
-  early_stopping: true
+  repetition_penalty: 1.0
+  no_repeat_ngram_size: 0
+  early_stopping: false
   length_penalty: 1.0
-  stop_after_first_sentence: true
-  force_eos_after_sentence: true
+  stop_after_first_sentence: false
+  force_eos_after_sentence: false
+  postprocess: false
   min_new_tokens_before_stop: 8
   max_prompt_length: 64
 

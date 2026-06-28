@@ -19,17 +19,17 @@ from PIL import Image
 sys.path.insert(0, "src")
 
 # ── Cấu hình ──────────────────────────────────────────────────────────────────
-CHECKPOINT_PATH   = "checkpoints/connector_last.pt"
+CHECKPOINT_PATH   = "checkpoints/connector_best_epoch6.pt"
 IMAGE_DIR         = "data/raw/images"
 TEST_JSON         = "data/processed/test.json"
 NUM_SAMPLES       = 10
 
 VISION_ENCODER    = "google/siglip2-large-patch16-256"
 DECODER           = "Qwen/Qwen3-1.7B"
-PROMPT            = "Hãy mô tả bức ảnh này bằng một câu tiếng Việt tự nhiên:"
+PROMPT            = "Viết đúng một câu chú thích tiếng Việt tự nhiên, giàu thông tin, mô tả chính xác người, vật, hành động và bối cảnh chính trong ảnh. Không lặp lại, không bịa chi tiết không chắc chắn:"
 
 GENERATION_CONFIG = {
-    "max_new_tokens": 32,
+    "max_new_tokens": 64,
     "num_beams": 3,
     "do_sample": False,
     "repetition_penalty": 1.2,

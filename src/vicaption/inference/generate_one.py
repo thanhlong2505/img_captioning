@@ -84,6 +84,7 @@ def generate_caption(
     generation_kwargs = dict(generation_config)
     stop_after_first_sentence = bool(generation_kwargs.pop("stop_after_first_sentence", True))
     force_eos_after_sentence = bool(generation_kwargs.pop("force_eos_after_sentence", True))
+    postprocess = bool(generation_kwargs.pop("postprocess", True))
     min_new_tokens_before_stop = int(generation_kwargs.pop("min_new_tokens_before_stop", 8))
     generation_kwargs.pop("max_prompt_length", None)
     generation_kwargs.setdefault("pad_token_id", tokenizer.pad_token_id)
@@ -111,4 +112,6 @@ def generate_caption(
 
     first = sequences[0] if hasattr(sequences, "__getitem__") else sequences
     text = tokenizer.decode(first, skip_special_tokens=True)
+    if not postprocess:
+        return text.strip()
     return postprocess_caption(text)
